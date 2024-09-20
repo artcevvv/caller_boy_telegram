@@ -38,12 +38,10 @@ func main() {
 		if update.Message != nil && (update.Message.Chat.Type == "group" || update.Message.Chat.Type == "supergroup") {
 			chatID := update.Message.Chat.ID
 
-			// Convert chatID to telego.ChatID type
 			chatIdentifier := telego.ChatID{
 				ID: chatID,
 			}
 
-			// Pass the chatIdentifier to GetChatAdministratorsParams
 			admins, err := bot.GetChatAdministrators(&telego.GetChatAdministratorsParams{
 				ChatID: chatIdentifier,
 			})
@@ -63,9 +61,6 @@ func main() {
 				}
 			}
 
-			// fmt.Println(adminList)
-
-			// Process the list of admins
 			bh.Handle(func(bot *telego.Bot, updates telego.Update) {
 				messageText := "Calling everyone... \n" + fmt.Sprintf("%v", adminList)
 				_, _ = bot.SendMessage(
@@ -77,14 +72,6 @@ func main() {
 			}, th.CommandEqual("call"))
 
 			bh.Start()
-			// sentMessage, _ := bot.SendMessage(
-			// 	tu.Message(
-			// 		tu.ID(chatID),
-			// 		update.Message.Text,
-			// 	),
-			// )
-
-			// fmt.Printf("Sent message: %v\n", sentMessage)
 		}
 	}
 }
