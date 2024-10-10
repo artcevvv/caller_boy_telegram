@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -54,10 +55,50 @@ func main() {
 				}
 			}
 
-			messageText := "Calling everyone... \n" + fmt.Sprintf("%v", adminList)
+			messageText := phrases[rand.Intn(len(phrases))] + "\n" + fmt.Sprintf("%v", adminList)
 			_, _ = bot.SendMessage(tu.Message(tu.ID(chatID), messageText))
 		}
 	}, th.CommandEqual("call"))
+
+	bh.Handle(func(bot *telego.Bot, update telego.Update) {
+		if update.Message != nil && (update.Message.Chat.Type == "group" || update.Message.Chat.Type == "supergroup") {
+			chatID := update.Message.Chat.ID
+
+			chatIdentifier := telego.ChatID{ID: chatID}
+			admins, err := bot.GetChatAdministrators(&telego.GetChatAdministratorsParams{
+				ChatID: chatIdentifier,
+			})
+
+			if err != nil {
+				fmt.Println("Error getting admins:", err)
+				return
+			}
+
+			var adminList []string
+			for _, admin := range admins {
+				if admin.MemberUser().Username != "caller_BDA_bot" && admin.MemberUser().Username != "" {
+					adminList = append(adminList, "@"+admin.MemberUser().Username)
+				}
+			}
+
+			messageText := emergentPhrase[rand.Intn(len(emergentPhrase))] + "\n" + fmt.Sprintf("%v", adminList)
+			_, _ = bot.SendMessage(tu.Message(tu.ID(chatID), messageText))
+		}
+	}, th.CommandEqual("emergentCall"))
+
+	bh.Handle(func(bot *telego.Bot, update telego.Update) {
+		chatID := update.Message.Chat.ID
+
+		messageText := helpMsg
+		_, _ = bot.SendMessage(tu.Message(tu.ID(chatID), messageText))
+	}, th.CommandEqual("help"))
+
+	bh.Handle(func(bot *telego.Bot, update telego.Update) {
+		chatID := update.Message.Chat.ID
+
+		messageText := brokenMsg
+		_, _ = bot.SendMessage(tu.Message(tu.ID(chatID), messageText))
+	}, th.CommandEqual("broken"))
 
 	bh.Start()
 }
