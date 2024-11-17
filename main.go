@@ -37,6 +37,7 @@ func main() {
 	bh.Handle(func(bot *telego.Bot, update telego.Update) {
 		if update.Message != nil && (update.Message.Chat.Type == "group" || update.Message.Chat.Type == "supergroup") {
 			chatID := update.Message.Chat.ID
+			threadID := update.Message.MessageThreadID // For supergroups
 
 			chatIdentifier := telego.ChatID{ID: chatID}
 			admins, err := bot.GetChatAdministrators(&telego.GetChatAdministratorsParams{
@@ -56,6 +57,18 @@ func main() {
 			}
 
 			messageText := phrases[rand.Intn(len(phrases))] + "\n" + fmt.Sprintf("%v", adminList)
+
+			sendMessageParams := telego.SendMessageParams{
+				ChatID:          chatIdentifier,
+				Text:            messageText,
+				MessageThreadID: threadID, // Include thread ID if it's part of a specific thread
+			}
+
+			_, _ = bot.SendMessage(&sendMessageParams)
+		} else {
+			chatID := update.Message.Chat.ID
+			messageText := degenMsg
+
 			_, _ = bot.SendMessage(tu.Message(tu.ID(chatID), messageText))
 		}
 	}, th.CommandEqual("call"))
@@ -83,8 +96,27 @@ func main() {
 
 			messageText := emergentPhrase[rand.Intn(len(emergentPhrase))] + "\n" + fmt.Sprintf("%v", adminList)
 			_, _ = bot.SendMessage(tu.Message(tu.ID(chatID), messageText))
+		} else {
+			chatID := update.Message.Chat.ID
+			messageText := degenMsg
+
+			_, _ = bot.SendMessage(tu.Message(tu.ID(chatID), messageText))
 		}
 	}, th.CommandEqual("emergentCall"))
+
+	bh.Handle(func(bot *telego.Bot, update telego.Update) {
+		if update.Message != nil && (update.Message.Chat.Type == "group" || update.Message.Chat.Type == "supergroup") {
+			chatID := update.Message.Chat.ID
+
+			messageText := leagueMsg
+			_, _ = bot.SendMessage(tu.Message(tu.ID(chatID), messageText))
+		} else {
+			chatID := update.Message.Chat.ID
+			messageText := degenMsg
+
+			_, _ = bot.SendMessage(tu.Message(tu.ID(chatID), messageText))
+		}
+	}, th.CommandEqual("leaguecall"))
 
 	bh.Handle(func(bot *telego.Bot, update telego.Update) {
 		chatID := update.Message.Chat.ID
@@ -99,6 +131,12 @@ func main() {
 		messageText := brokenMsg
 		_, _ = bot.SendMessage(tu.Message(tu.ID(chatID), messageText))
 	}, th.CommandEqual("broken"))
+
+	bh.Handle(func(bot *telego.Bot, update telego.Update) {
+		chatID := update.Message.Chat.ID
+		messageText := startMessage
+		_, _ = bot.SendMessage(tu.Message(tu.ID(chatID), messageText))
+	}, th.CommandEqual("start"))
 
 	bh.Start()
 }

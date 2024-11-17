@@ -1,7 +1,7 @@
 package main
 
 var phrases = []string{
-	"Getting freaky with everyone🤡",
+	"Getting 𝓯𝓻𝓮𝓪𝓴𝔂 with everyone🤡",
 	"Drenched in 𝓬𝓾𝓶💦",
 	"Spreading the legs🦵",
 	"Unleashing 𝓬𝓾𝓶 on all💦",
